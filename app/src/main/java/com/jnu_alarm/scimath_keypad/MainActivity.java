@@ -1,17 +1,15 @@
 package com.jnu_alarm.scimath_keypad;
+
 import com.jnu_alarm.scimath_keypad.BuildConfig;
-
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.annotation.Nullable;
-
 import java.util.HashMap;
 import java.util.Map;
-
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 public class MainActivity extends AppCompatActivity {
@@ -28,6 +26,11 @@ public class MainActivity extends AppCompatActivity {
 
         // WebView 설정
         webView.getSettings().setJavaScriptEnabled(true); // JavaScript 사용 가능하게 설정
+
+        // JavaScript Interface 등록
+        webView.addJavascriptInterface(new WebAppInterface(), "AndroidInterface");
+
+        // WebViewClient 설정
         webView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
@@ -41,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // 헤더 추가하여 URL 로드
+        // URL 로드 및 헤더 설정
         String url = "http://192.168.0.10:8000/keypad/";
         webView.loadUrl(url, getCustomHeaders());
 
@@ -60,5 +63,14 @@ public class MainActivity extends AppCompatActivity {
         Map<String, String> headers = new HashMap<>();
         headers.put("X-APP-ID", BuildConfig.X_APP_ID);  // Django 서버에서 기대하는 토큰
         return headers;
+    }
+
+    // JavaScript Interface 정의
+    public class WebAppInterface {
+        @JavascriptInterface
+        public String getAppId() {
+            // BuildConfig에서 X-APP-ID를 가져옴
+            return BuildConfig.X_APP_ID;
+        }
     }
 }

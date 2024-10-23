@@ -72,5 +72,16 @@ public class MainActivity extends AppCompatActivity {
             // BuildConfig에서 X-APP-ID를 가져옴
             return BuildConfig.X_APP_ID;
         }
+
+        @JavascriptInterface
+        public void reloadWebView() {
+            // 웹뷰 새로고침
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    webView.reload();
+                }
+            });
+        }
     }
 }

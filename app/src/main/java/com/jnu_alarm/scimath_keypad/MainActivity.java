@@ -3,11 +3,16 @@ package com.jnu_alarm.scimath_keypad;
 import com.jnu_alarm.scimath_keypad.BuildConfig;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Handler;
+import android.util.Log;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import androidx.annotation.Nullable;
+
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -15,6 +20,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private Handler handler = new Handler();
+    private Runnable autoReloadTask;
+    String url = BuildConfig.BASE_URL;
+//    String url = "http://192.168.0.10:8000/keypad/";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // URL 로드 및 헤더 설정
-        String url = "http://192.168.0.10:8000/keypad/";
         webView.loadUrl(url, getCustomHeaders());
 
         // 스와이프 새로고침 설정
@@ -56,6 +64,13 @@ public class MainActivity extends AppCompatActivity {
                 webView.reload();
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // 자동 새로고침 작업 시작
+        startAutoReload();
     }
 
     // X-APP-ID 헤더를 추가하는 메서드
@@ -82,6 +97,36 @@ public class MainActivity extends AppCompatActivity {
                     webView.reload();
                 }
             });
+        }
+    }
+
+    private void startAutoReload() {
+        autoReloadTask = new Runnable() {
+            @Override
+            public void run() {
+                // 현재 시간 확인
+                Calendar now = Calendar.getInstance();
+                int hour = now.get(Calendar.HOUR_OF_DAY);
+                // 0시 또는 6시에 WebView 새로고침
+                if (hour == 0 || hour == 6 || hour == 9) {
+                    webView.loadUrl(url, getCustomHeaders());
+                }
+
+                // 1시간 후 다시 실행
+                handler.postDelayed(this, 60 * 60 * 1000); // 1시간 (3600초)
+            }
+        };
+
+        // 첫 실행
+        handler.post(autoReloadTask);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Handler에서 작업 제거
+        if (handler != null && autoReloadTask != null) {
+            handler.removeCallbacks(autoReloadTask);
         }
     }
 }

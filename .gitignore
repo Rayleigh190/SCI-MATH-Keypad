@@ -1,6 +1,7 @@
 # Created by https://www.toptal.com/developers/gitignore/api/macos,java,androidstudio
 # Edit at https://www.toptal.com/developers/gitignore?templates=macos,java,androidstudio
-
+scimath_release
+release
 ### Java ###
 # Compiled class file
 *.class

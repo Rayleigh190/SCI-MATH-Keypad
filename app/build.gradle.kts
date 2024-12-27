@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.jnu_alarm.scimath_keypad"
-        minSdk = 24
+        minSdk = 23
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
